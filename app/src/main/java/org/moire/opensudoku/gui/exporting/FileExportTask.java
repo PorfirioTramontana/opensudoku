@@ -1,22 +1,25 @@
 package org.moire.opensudoku.gui.exporting;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
-
-import org.xmlpull.v1.XmlSerializer;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
 import android.util.Xml;
+
 import org.moire.opensudoku.db.SudokuColumns;
 import org.moire.opensudoku.db.SudokuDatabase;
 import org.moire.opensudoku.utils.Const;
+import org.xmlpull.v1.XmlSerializer;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.concurrent.Semaphore;
+
+import it.unina.ptramont.TaskTestUtility;
 
 /**
  * Must be created on GUI thread.
@@ -24,6 +27,9 @@ import org.moire.opensudoku.utils.Const;
  * @author romario
  */
 public class FileExportTask extends AsyncTask<FileExportTaskParams, Integer, Void> {
+	//ADDED
+	public static Semaphore[] sem = new Semaphore[2];
+	//END ADDED
 
 	private Context mContext;
 	private Handler mGuiHandler;
@@ -45,6 +51,9 @@ public class FileExportTask extends AsyncTask<FileExportTaskParams, Integer, Voi
 
 	@Override
 	protected Void doInBackground(FileExportTaskParams... params) {
+		//ADDED
+		TaskTestUtility.startTask(sem);
+		//END ADDED
 		for (FileExportTaskParams par : params) {
 			final FileExportTaskResult res = saveToFile(par);
 
@@ -59,7 +68,9 @@ public class FileExportTask extends AsyncTask<FileExportTaskParams, Integer, Voi
 				}
 			});
 		}
-
+		//ADDED
+		TaskTestUtility.finishTask(sem);
+		//END ADDED
 		return null;
 	}
 
